@@ -1,10 +1,12 @@
 import functools
 import heapq as hq
 import operator
+from functools import reduce
+
 import numpy as np
 import random
 
-from metrics import weighted_relative_accuracy
+from .metrics import weighted_relative_accuracy
 
 
 class BeamSearch(object):
@@ -77,15 +79,17 @@ class BeamSearch(object):
     def width_search(self, X, y, candidates, categorical):
         results = []
 
-        for c in candidates:
-            subgroup = c(X[:, c.attr_index])
-            X, y = X[subgroup], y[subgroup]
+        def merge_subgroups(sub1, splitter):
+            sub2 = splitter(X[:, splitter.attr_index])
+            return np.logical_and(sub1, sub2)
+
+        p_subgroup = reduce(merge_subgroups, candidates, initial=np.ones(X[:, 1].shape, np.bool_))
 
         for i in range(X.shape[1]):
             feature = X[:, i]
             for splitter in self.get_splitters(feature, categorical[i]):
                 splitter.attr_index = i
-                subgroup = splitter(feature)
+                subgroup = merge_subgroups(p_subgroup, splitter)
                 measure = self.metric(X, y, subgroup)
                 results.append((measure, self.random.random(), candidates + [splitter]))
 
