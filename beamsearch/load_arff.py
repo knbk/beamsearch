@@ -5,6 +5,18 @@ from sklearn import preprocessing
 
 data_path = os.path.expanduser('~/.openml/cache/datasets/40536/dataset.arff')
 
+# This removes all discretized attributes that are also available as numerical attributes.
+# Remove these, as the numerical attributes allow for more fine-grained selection.
+keep = np.array([
+    True, True, True, True, True, True, False, True, True, True, True, True, False, False, True, True, True, True, True,
+    True, True, False, False, False, False, False, False, True, True, True, True, True, True, False, False, False,
+    False, False, False, True, True, True, True, True, True, False, False, False, False, False, False, True, True, True,
+    True, True, False, False, False, False, False, True, True, True, True, True, True, False, False, False, False,
+    False, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True,
+    False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
+    False, True, False, True, True, True, False, False, False, True, True, False, False, True
+])
+
 
 def load_data(path, include_categorical=False, include_attributes=False):
     path = path or data_path
@@ -29,7 +41,9 @@ def load_data(path, include_categorical=False, include_attributes=False):
 
 
 def transform(X, y, categorical, attributes):
+    X = X[:, keep]
     categorical = np.array(categorical)
+    categorical = categorical[keep]
     numerical = ~categorical
     Xnum = X[:, numerical]
     Xnum = preprocessing.Imputer(strategy='median').fit_transform(Xnum, y)
@@ -37,6 +51,7 @@ def transform(X, y, categorical, attributes):
     Xcat = preprocessing.Imputer(strategy='most_frequent').fit_transform(Xcat, y)
     X[:, numerical] = Xnum
     X[:, categorical] = Xcat
+    attributes = [x for i, x in enumerate(attributes) if keep[i]]
     return X, y, categorical, attributes
 
 
