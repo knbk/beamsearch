@@ -1,3 +1,4 @@
+import functools
 import numpy as np
 
 
@@ -9,3 +10,11 @@ def weighted_relative_accuracy(X, y, subgroup):
     n = np.count_nonzero(~subY)
 
     return p/P - n/N
+
+
+def negate(f):
+    @functools.wraps(f)
+    def metric(X, y, subgroup):
+        return -f(X, y, subgroup)
+
+    return metric
