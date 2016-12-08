@@ -16,7 +16,7 @@ def load_data(include_categorical=False, include_attributes=False):
     y = np_data[:, -1]
 
     categorical = [isinstance(type_, list) for _, type_ in data['attributes'][:-3]]
-    attributes = [attr for attr, _ in data['attributes'][:-3]]
+    attributes = data['attributes'][:-3]
 
     ret_val = [X, y]
     if include_categorical:

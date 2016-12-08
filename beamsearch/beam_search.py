@@ -83,7 +83,7 @@ class BeamSearch(object):
             sub2 = splitter(X[:, splitter.attr_index])
             return np.logical_and(sub1, sub2)
 
-        p_subgroup = reduce(merge_subgroups, candidates, initial=np.ones(X[:, 1].shape, np.bool_))
+        p_subgroup = reduce(merge_subgroups, candidates, np.ones(X[:, 0].shape, np.bool_))
 
         for i in range(X.shape[1]):
             feature = X[:, i]
@@ -104,7 +104,7 @@ class BeamSearch(object):
 
         candidates = [[get_all]]
 
-        for d in range(self.depth + 1):
+        for d in range(self.depth):
             beam = []
             while candidates:
                 cds = candidates.pop()
@@ -114,17 +114,26 @@ class BeamSearch(object):
 
             candidates = [cds for i, r, cds in beam]
 
-        return results
+        return [(measure, cds) for measure, _, cds in results]
+
+    def get_splitter_descr(self, splitter, attributes):
+        attr = attributes[splitter.attr_index]
+        if isinstance(attr[1], list):
+            val = attr[1][int(splitter.args[0])]
+        else:
+            val = splitter.args[0]
+        return '%s %s %s' % (attr[0], splitter.comparison, val)
 
     def search(self, X, y, categorical, attributes):
         results = self.depth_search(X, y, categorical)
-        # new_res = []
-        # for measure, _, candidates in results:
-        #     newline = [measure]
-        #     Xsub = X
-        #     for c in candidates[1:]:
-        #         descr = '%s %s %s' % (attributes[c.attr_index], c.comparison, c.args[0])
-        #         newline.append(descr)
-        #         Xsub = Xsub[c(X[:, c.attr_index])]
+        new_res = []
+        for measure, candidates in results:
+            newline = [measure]
+            for c in candidates[1:]:
+                newline.append(self.get_splitter_descr(c, attributes))
+            new_res.append(newline)
 
-        return results
+        return new_res
+
+
+search = BeamSearch()
