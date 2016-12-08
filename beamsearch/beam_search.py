@@ -2,7 +2,6 @@ import functools
 import heapq as hq
 import operator
 from functools import reduce
-
 import numpy as np
 import random
 
@@ -64,16 +63,20 @@ class BeamSearch(object):
                     ne.comparison = '!='
                     res.append(ne)
         else:
+            fset = set()
             for i in range(self.bins):
                 # Comparison labels are swapped because the split value
                 # is the first parameter and the dataset the second
                 val = np.percentile(feature, i * 100.0 / self.bins)
+                if val in fset:
+                    continue
                 le = functools.partial(operator.le, val)
                 le.comparison = '>='
                 res.append(le)
                 ge = functools.partial(operator.ge, val)
                 ge.comparison = '<='
                 res.append(ge)
+                fset.add(val)
         return res
 
     def get_subgroup(self, X, splitters):
@@ -88,13 +91,17 @@ class BeamSearch(object):
 
         p_subgroup = self.get_subgroup(X, candidates)
 
+        push = hq.heappush
+
         for i in range(X.shape[1]):
             feature = X[:, i]
             for splitter in self.get_splitters(feature, categorical[i]):
                 splitter.attr_index = i
                 subgroup = np.logical_and(p_subgroup, splitter(X[:, splitter.attr_index]))
                 measure = self.metric(X, y, subgroup)
-                results.append((measure, self.random.random(), candidates + [splitter]))
+                push(results, (measure, self.random.random(), candidates + [splitter]))
+                if len(results) >= self.width:
+                    push = hq.heappushpop
 
         return results
 
