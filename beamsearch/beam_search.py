@@ -76,20 +76,23 @@ class BeamSearch(object):
                 res.append(ge)
         return res
 
-    def width_search(self, X, y, candidates, categorical):
-        results = []
-
+    def get_subgroup(self, X, splitters):
         def merge_subgroups(sub1, splitter):
             sub2 = splitter(X[:, splitter.attr_index])
             return np.logical_and(sub1, sub2)
 
-        p_subgroup = reduce(merge_subgroups, candidates, np.ones(X[:, 0].shape, np.bool_))
+        return reduce(merge_subgroups, splitters, np.ones(X[:, 0].shape, np.bool_))
+
+    def width_search(self, X, y, candidates, categorical):
+        results = []
+
+        p_subgroup = self.get_subgroup(X, candidates)
 
         for i in range(X.shape[1]):
             feature = X[:, i]
             for splitter in self.get_splitters(feature, categorical[i]):
                 splitter.attr_index = i
-                subgroup = merge_subgroups(p_subgroup, splitter)
+                subgroup = np.logical_and(p_subgroup, splitter(X[:, splitter.attr_index]))
                 measure = self.metric(X, y, subgroup)
                 results.append((measure, self.random.random(), candidates + [splitter]))
 
@@ -128,7 +131,7 @@ class BeamSearch(object):
         results = self.depth_search(X, y, categorical)
         new_res = []
         for measure, candidates in results:
-            newline = [measure]
+            newline = [measure, np.count_nonzero(self.get_subgroup(X, candidates))]
             for c in candidates[1:]:
                 newline.append(self.get_splitter_descr(c, attributes))
             new_res.append(newline)

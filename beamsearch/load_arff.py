@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import arff
 import os
 import numpy as np
@@ -7,8 +6,10 @@ from sklearn import preprocessing
 data_path = os.path.expanduser('~/.openml/cache/datasets/40536/dataset.arff')
 
 
-def load_data(include_categorical=False, include_attributes=False):
-    with open(data_path, 'r') as fp:
+def load_data(path, include_categorical=False, include_attributes=False):
+    path = path or data_path
+
+    with open(path, 'r') as fp:
         data = arff.load(fp, encode_nominal=True)
 
     np_data = np.array(data['data'])
@@ -39,6 +40,6 @@ def transform(X, y, categorical, attributes):
     return X, y, categorical, attributes
 
 
-def get_data():
-    X, y, categorical, attributes = load_data(True, True)
+def get_data(path=None):
+    X, y, categorical, attributes = load_data(path, True, True)
     return transform(X, y, categorical, attributes)
