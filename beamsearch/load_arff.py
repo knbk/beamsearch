@@ -18,6 +18,14 @@ keep = np.array([
 ])
 
 
+class ARFFData:
+    def __init__(self, x, y, categorical=None, attributes=None):
+        self.x = x
+        self.y = y
+        self.categorical = categorical
+        self.attributes = attributes
+
+
 def load_data(path, include_categorical=False, include_attributes=False):
     path = path or data_path
 
@@ -25,17 +33,18 @@ def load_data(path, include_categorical=False, include_attributes=False):
         data = arff.load(fp, encode_nominal=True)
 
     np_data = np.array(data['data'])
-    X = np_data[:, 0:-3]
+    x = np_data[:, 0:-3]
     y = np_data[:, -1]
 
     categorical = [isinstance(type_, list) for _, type_ in data['attributes'][:-3]]
     attributes = data['attributes'][:-3]
 
-    ret_val = [X, y]
+    ret_val = ARFFData(x, y)
+
     if include_categorical:
-        ret_val.append(categorical)
+        ret_val.categorical = categorical
     if include_attributes:
-        ret_val.append(attributes)
+        ret_val.attributes = attributes
 
     return ret_val
 

@@ -110,6 +110,7 @@ class BeamSearch(object):
 
         def get_all(X):
             return np.ones(X.shape, np.bool_)
+
         get_all.attr_index = 0
 
         candidates = [[get_all]]
@@ -134,11 +135,11 @@ class BeamSearch(object):
             val = splitter.args[0]
         return '%s %s %s' % (attr[0], splitter.comparison, val)
 
-    def search(self, X, y, categorical, attributes):
-        results = self.depth_search(X, y, categorical)
+    def search(self, x, y, categorical, attributes):
+        results = self.depth_search(x, y, categorical)
         new_res = []
         for measure, candidates in results:
-            newline = [measure, np.count_nonzero(self.get_subgroup(X, candidates))]
+            newline = [measure, np.count_nonzero(self.get_subgroup(x, candidates))]
             for c in candidates[1:]:
                 newline.append(self.get_splitter_descr(c, attributes))
             new_res.append(newline)

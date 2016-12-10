@@ -1,2 +1,5 @@
 from beamsearch import *
-#TODO write code :P
+
+data = load_data('./dataset.arff', True, True)
+searcher = BeamSearch()
+searcher.search(data.x, data.y, data.categorical, data.attributes)
