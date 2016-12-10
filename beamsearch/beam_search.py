@@ -81,37 +81,37 @@ class BeamSearch(object):
                 fset.add(val)
         return res
 
-    def get_subgroup(self, X, splitters):
+    def get_subgroup(self, x, splitters):
         def merge_subgroups(sub1, splitter):
-            sub2 = splitter(X[:, splitter.attr_index])
+            sub2 = splitter(x[:, splitter.attr_index])
             return np.logical_and(sub1, sub2)
 
-        return reduce(merge_subgroups, splitters, np.ones(X[:, 0].shape, np.bool_))
+        return reduce(merge_subgroups, splitters, np.ones(x[:, 0].shape, np.bool_))
 
-    def width_search(self, X, y, candidates, categorical):
+    def width_search(self, x, y, candidates, categorical):
         results = []
 
-        p_subgroup = self.get_subgroup(X, candidates)
+        p_subgroup = self.get_subgroup(x, candidates)
 
         push = hq.heappush
 
-        for i in range(X.shape[1]):
-            feature = X[:, i]
+        for i in range(x.shape[1]):
+            feature = x[:, i]
             for splitter in self.get_splitters(feature, categorical[i]):
                 splitter.attr_index = i
-                subgroup = np.logical_and(p_subgroup, splitter(X[:, splitter.attr_index]))
-                measure = self.metric(X, y, subgroup)
+                subgroup = np.logical_and(p_subgroup, splitter(x[:, splitter.attr_index]))
+                measure = self.metric(x, y, subgroup)
                 push(results, (measure, self.random.random(), candidates + [splitter]))
                 if len(results) >= self.width:
                     push = hq.heappushpop
 
         return results
 
-    def depth_search(self, X, y, categorical):
+    def depth_search(self, x, y, categorical):
         results = []
 
-        def get_all(X):
-            return np.ones(X.shape, np.bool_)
+        def get_all(x):
+            return np.ones(x.shape, np.bool_)
 
         get_all.attr_index = 0
 
@@ -121,7 +121,7 @@ class BeamSearch(object):
             beam = []
             while candidates:
                 cds = candidates.pop()
-                width_search = self.width_search(X, y, cds, categorical)
+                width_search = self.width_search(x, y, cds, categorical)
                 beam = hq.nlargest(self.width, hq.merge(beam, width_search))
                 results = hq.nlargest(self.q, hq.merge(results, width_search))
 
@@ -137,13 +137,13 @@ class BeamSearch(object):
             val = splitter.args[0]
         return '%s %s %s' % (attr[0], splitter.comparison, val)
 
-    def search(self, x, y, categorical, attributes):
-        results = self.depth_search(x, y, categorical)
+    def search(self, data):
+        results = self.depth_search(data.x, data.y, data.categorical)
         new_res = []
         for measure, candidates in results:
-            newline = [measure, np.count_nonzero(self.get_subgroup(x, candidates))]
+            newline = [measure, np.count_nonzero(self.get_subgroup(data.x, candidates))]
             for c in candidates[1:]:
-                newline.append(self.get_splitter_descr(c, attributes))
+                newline.append(self.get_splitter_descr(c, data.attributes))
             new_res.append(newline)
 
         return new_res

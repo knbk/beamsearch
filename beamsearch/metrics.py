@@ -3,56 +3,56 @@ import math
 import numpy as np
 
 
-def weighted_relative_accuracy(X, y, subgroup):
-    subY = y[subgroup]
-    P = np.count_nonzero(y)
-    p = np.count_nonzero(subY)
-    N = np.count_nonzero(~y)
-    n = np.count_nonzero(~subY)
+def weighted_relative_accuracy(x, y, subgroup):
+    sub_y = y[subgroup]
+    p1 = np.count_nonzero(y)
+    p2 = np.count_nonzero(sub_y)
+    n1 = np.count_nonzero(~y)
+    n2 = np.count_nonzero(~sub_y)
 
-    return p/P - n/N
+    return p2/p1 - n2/n1
 
 
-def specificity(X, y, subgroup):
-    subY = y[subgroup]
+def specificity(x, y, subgroup):
+    sub_y = y[subgroup]
 
-    N = np.count_nonzero(~y)
-    n = np.count_nonzero(~subY)
+    n1 = np.count_nonzero(~y)
+    n2 = np.count_nonzero(~sub_y)
 
-    return 1 - n/N
+    return 1 - n2/n1
 
 
 def sensitivity(X, y, subgroup):
-    subY = y[subgroup]
-    P = np.count_nonzero(y)
-    p = np.count_nonzero(subY)
+    sub_y = y[subgroup]
+    p1 = np.count_nonzero(y)
+    p2 = np.count_nonzero(sub_y)
 
-    return p/P
+    return p2/p1
 
 
-def correlation(X, y, subgroup):
-    subY = y[subgroup]
-    P = np.count_nonzero(y)
-    p = np.count_nonzero(subY)
-    N = np.count_nonzero(~y)
-    n = np.count_nonzero(~subY)
+def correlation(x, y, subgroup):
+    sub_y = y[subgroup]
+    p1 = np.count_nonzero(y)
+    p2 = np.count_nonzero(sub_y)
+    n1 = np.count_nonzero(~y)
+    n2 = np.count_nonzero(~sub_y)
 
-    if p + n == 0 or (P - p + N - n) == 0:
+    if p2 + n2 == 0 or (p1 - p2 + n1 - n2) == 0:
         return 0
 
-    return (p * N - P * n) / math.sqrt(P * N * (p + n) * (P - p + N - n))
+    return (p2 * n1 - p1 * n2) / math.sqrt(p1 * n1 * (p2 + n2) * (p1 - p2 + n1 - n2))
 
 
-def chi_square(X, y, subgroup):
-    P = np.count_nonzero(y)
-    N = np.count_nonzero(~y)
+def chi_square(x, y, subgroup):
+    p = np.count_nonzero(y)
+    n = np.count_nonzero(~y)
 
-    return (P + N) * (correlation(X, y, subgroup) ** 2)
+    return (p + n) * (correlation(x, y, subgroup) ** 2)
 
 
 def negate(f):
     @functools.wraps(f)
-    def metric(X, y, subgroup):
-        return -f(X, y, subgroup)
+    def metric(x, y, subgroup):
+        return -f(x, y, subgroup)
 
     return metric

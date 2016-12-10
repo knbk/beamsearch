@@ -30,9 +30,9 @@ class SearchRunner(object):
         cmd_options = vars(options)
         search = BeamSearch(**cmd_options)
         print("Loading data...")
-        X, y, categorical, attributes = get_data()
+        data = get_data()
         print("Starting search...")
-        results = search.search(X, y, categorical, attributes)
+        results = search.search(data)
         print("Finished search:")
         for r in results:
             print(r)
