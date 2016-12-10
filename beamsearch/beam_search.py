@@ -5,12 +5,14 @@ from functools import reduce
 import numpy as np
 import random
 
-from .metrics import weighted_relative_accuracy
+from beamsearch import metrics
 
 
 class BeamSearch(object):
     def __init__(self, metric=None, width=5, depth=2, q=10, bins=8):
-        self.metric = metric or weighted_relative_accuracy
+        if metric and not callable(metric):
+            metric = getattr(metrics, metric)
+        self.metric = metric or metrics.weighted_relative_accuracy
         self.width = width
         self.depth = depth
         self.q = q
