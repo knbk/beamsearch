@@ -25,7 +25,7 @@ class SearchRunner(object):
             help='Set the number of results.'
         )
         parser.add_argument(
-            '-v', '--verbose', type=int, default=0,
+            '-v', '--verbose', type=int, default=2,
             help='Set the verbosity of the output.'
         )
         parser.add_argument(
@@ -35,6 +35,10 @@ class SearchRunner(object):
         parser.add_argument(
             '--minimize', default=False, action='store_true',
             help="Minimize the measure to get the worst subgroups."
+        )
+        parser.add_argument(
+            '--min-size', default=0.1, type=float,
+            help="Minimum relative size of subgroups. Should be a float in the [0.0, 1.0] range."
         )
         self.parser = parser
 

@@ -18,7 +18,7 @@ class SubGroup:
         self.attributes.append(attribute)
 
     def __str__(self):
-        return "measure: %s, count: %d, attributes: %s" % (self.measure, self.count, self.attributes)
+        return "measure: %.3f, count: %d, attributes: %s" % (self.measure, self.count, self.attributes)
 
 
 class BeamSearch(object):
@@ -28,7 +28,7 @@ class BeamSearch(object):
         'match': 2,
     }
 
-    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match', minimize=False):
+    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match', minimize=False, min_size=0.1):
         if metric and not callable(metric):
             metric = getattr(metrics, metric)
         metric = metric or metrics.weighted_relative_accuracy
@@ -42,6 +42,7 @@ class BeamSearch(object):
         self.random = random.Random(1)
         self.verbosity = verbose
         self.target = self.targets[target]
+        self.min_size = min_size
 
     # def run_classifier(self, X, y):
     #     results = []
@@ -124,6 +125,9 @@ class BeamSearch(object):
             for splitter in self.get_splitters(feature, categorical[i]):
                 splitter.attr_index = i
                 subgroup = np.logical_and(p_subgroup, splitter(x[:, splitter.attr_index]))
+                if (np.count_nonzero(subgroup) / np.count_nonzero(p_subgroup) < self.min_size
+                        or np.count_nonzero(subgroup) / np.count_nonzero(p_subgroup) > 1 - self.min_size):
+                    continue
                 measure = self.metric(x, y, subgroup)
                 push(results, (measure, self.random.random(), candidates + [splitter]))
                 if len(results) >= self.width:
