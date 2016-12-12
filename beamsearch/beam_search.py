@@ -128,7 +128,7 @@ class BeamSearch(object):
                 if (np.count_nonzero(subgroup) / np.count_nonzero(p_subgroup) < self.min_size
                         or np.count_nonzero(subgroup) / np.count_nonzero(p_subgroup) > 1 - self.min_size):
                     continue
-                measure = self.metric(x, y, subgroup)
+                measure = self.metric(x, y, p_subgroup, subgroup)
                 push(results, (measure, self.random.random(), candidates + [splitter]))
                 if len(results) >= self.width:
                     push = hq.heappushpop
