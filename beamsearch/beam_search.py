@@ -8,6 +8,19 @@ import random
 from beamsearch import metrics
 
 
+class SubGroup:
+    def __init__(self, measure, count):
+        self.measure = measure
+        self.count = count
+        self.attributes = []
+
+    def add_attribute(self, attribute):
+        self.attributes.append(attribute)
+
+    def __str__(self):
+        return "measure: " + self.measure + ", count: " + self.count + ", attributes: " + str(self.attributes)
+
+
 class BeamSearch(object):
     def __init__(self, metric=None, width=5, depth=2, q=10, bins=8):
         if metric and not callable(metric):
@@ -141,10 +154,10 @@ class BeamSearch(object):
         results = self.depth_search(data.x, data.y, data.categorical)
         new_res = []
         for measure, candidates in results:
-            newline = [measure, np.count_nonzero(self.get_subgroup(data.x, candidates))]
+            result = SubGroup(measure, np.count_nonzero(self.get_subgroup(data.x, candidates)))
             for c in candidates[1:]:
-                newline.append(self.get_splitter_descr(c, data.attributes))
-            new_res.append(newline)
+                result.add_attribute(self.get_splitter_descr(c, data.attributes))
+            new_res.append(result)
 
         return new_res
 
