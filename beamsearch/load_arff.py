@@ -1,9 +1,8 @@
 import arff
-import os
 import numpy as np
 from sklearn import preprocessing
 
-data_path = os.path.expanduser('~/.openml/cache/datasets/40536/dataset.arff')
+data_path = './dataset.arff'
 
 # This removes all discretized attributes that are also available as numerical attributes.
 # Remove these, as the numerical attributes allow for more fine-grained selection.
