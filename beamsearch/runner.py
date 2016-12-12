@@ -32,6 +32,10 @@ class SearchRunner(object):
             '-t', '--target', default='match',
             help="The target to measure. Choices are 'match', 'decision' or 'decision_o'."
         )
+        parser.add_argument(
+            '--minimize', default=False, action='store_true',
+            help="Minimize the measure to get the worst subgroups."
+        )
         self.parser = parser
 
     def run_from_argv(self, argv):

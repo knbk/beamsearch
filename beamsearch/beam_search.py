@@ -18,7 +18,7 @@ class SubGroup:
         self.attributes.append(attribute)
 
     def __str__(self):
-        return "measure: " + self.measure + ", count: " + self.count + ", attributes: " + str(self.attributes)
+        return "measure: %s, count: %d, attributes: %s" % (self.measure, self.count, self.attributes)
 
 
 class BeamSearch(object):
@@ -28,10 +28,13 @@ class BeamSearch(object):
         'match': 2,
     }
 
-    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match'):
+    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match', minimize=False):
         if metric and not callable(metric):
             metric = getattr(metrics, metric)
-        self.metric = metric or metrics.weighted_relative_accuracy
+        metric = metric or metrics.weighted_relative_accuracy
+        if minimize:
+            metric = metrics.negate(metric)
+        self.metric = metric
         self.width = width
         self.depth = depth
         self.q = q
