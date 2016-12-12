@@ -46,7 +46,7 @@ def load_data(path, include_categorical=False, include_attributes=False):
 
     np_data = np.array(data['data'])
     x = np_data[:, 0:-3]
-    y = np_data[:, -1]
+    y = np_data[:, -3:]
 
     categorical = [isinstance(type_, list) for _, type_ in data['attributes'][:-3]]
     attributes = data['attributes'][:-3]

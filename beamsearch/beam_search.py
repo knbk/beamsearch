@@ -22,7 +22,13 @@ class SubGroup:
 
 
 class BeamSearch(object):
-    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8):
+    targets = {
+        'decision': 0,
+        'decision_o': 1,
+        'match': 2,
+    }
+
+    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match'):
         if metric and not callable(metric):
             metric = getattr(metrics, metric)
         self.metric = metric or metrics.weighted_relative_accuracy
@@ -31,6 +37,8 @@ class BeamSearch(object):
         self.q = q
         self.bins = bins
         self.random = random.Random(1)
+        self.verbosity = verbose
+        self.target = self.targets[target]
 
     # def run_classifier(self, X, y):
     #     results = []
@@ -131,12 +139,18 @@ class BeamSearch(object):
         candidates = [[get_all]]
 
         for d in range(self.depth):
+            if self.verbosity > 0:
+                print("depth: %d" % d)
             beam = []
+            i = 0
             while candidates:
                 cds = candidates.pop()
+                if self.verbosity > 1:
+                    print("candidate: %d" % i)
                 width_search = self.width_search(x, y, cds, categorical)
                 beam = hq.nlargest(self.width, hq.merge(beam, width_search))
                 results = hq.nlargest(self.q, hq.merge(results, width_search))
+                i += 1
 
             candidates = [cds for i, r, cds in beam]
 
@@ -151,7 +165,7 @@ class BeamSearch(object):
         return '%s %s %s' % (attr[0], splitter.comparison, val)
 
     def search(self, data):
-        results = self.depth_search(data.x, data.y, data.categorical)
+        results = self.depth_search(data.x, data.y[:,self.target], data.categorical)
         new_res = []
         for measure, candidates in results:
             result = SubGroup(measure, np.count_nonzero(self.get_subgroup(data.x, candidates)))

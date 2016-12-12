@@ -8,8 +8,9 @@ class SearchRunner(object):
     def __init__(self):
         parser = ArgumentParser()
         parser.add_argument(
-            '-m', '--metric', choices=['weighted_relative_accuracy', 'specificity', 'sensitivity', 'correlation', 'chi_square'],
-            help='Set the metric to evaluate the subgroups.'
+            '-m', '--metric',
+            help="Set the metric to evaluate the subgroups. Choices are 'weighted_relative_accuracy', 'specificity', "
+                 "'sensitivity', 'correlation' or 'chi_square'."
         )
         parser.add_argument(
             '-w', '--width', type=int, default=5,
@@ -22,6 +23,14 @@ class SearchRunner(object):
         parser.add_argument(
             '-q', type=int, default=10,
             help='Set the number of results.'
+        )
+        parser.add_argument(
+            '-v', '--verbose', type=int, default=0,
+            help='Set the verbosity of the output.'
+        )
+        parser.add_argument(
+            '-t', '--target', default='match',
+            help="The target to measure. Choices are 'match', 'decision' or 'decision_o'."
         )
         self.parser = parser
 
