@@ -14,12 +14,14 @@ def weighted_relative_accuracy(x, y, p_subgroup, subgroup):
     return p2 / p1 - n2 / n1
 
 
-def semi_elift(x, y, subgroup):
+def semi_elift(x, y, p_subgroup, subgroup):
+    p_y = y[p_subgroup]
     sub_y = y[subgroup]
-    p1 = np.count_nonzero(y)
+    p1 = np.count_nonzero(p_y)
     p2 = np.count_nonzero(sub_y)
-    n1 = np.count_nonzero(~y)
+    n1 = np.count_nonzero(~p_y)
     n2 = np.count_nonzero(~sub_y)
+
     if p2+n2 == 0 or p1+n1 == 0:
         return 0
     else:
