@@ -1,8 +1,9 @@
 from beamsearch import *
-from daans_attempt import test_subsets
+from discrimination_search import find_discrimination
 
 data = get_data('./dataset.arff')
 
-searcher = BeamSearch()
+searcher = BeamSearch(metric=semi_elift)
 subsets = searcher.search(data)
-test_subsets(data, subsets)
+print('x')
+# find_discrimination(data)

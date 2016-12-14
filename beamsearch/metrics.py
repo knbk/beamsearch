@@ -10,7 +10,19 @@ def weighted_relative_accuracy(x, y, subgroup):
     n1 = np.count_nonzero(~y)
     n2 = np.count_nonzero(~sub_y)
 
-    return p2/p1 - n2/n1
+    return p2 / p1 - n2 / n1
+
+
+def semi_elift(x, y, subgroup):
+    sub_y = y[subgroup]
+    p1 = np.count_nonzero(y)
+    p2 = np.count_nonzero(sub_y)
+    n1 = np.count_nonzero(~y)
+    n2 = np.count_nonzero(~sub_y)
+    if p2+n2 == 0 or p1+n1 == 0:
+        return 0
+    else:
+        return (n2 / (p2 + n2)) / (n1 / (p1 + n1))
 
 
 def specificity(x, y, subgroup):
@@ -19,7 +31,7 @@ def specificity(x, y, subgroup):
     n1 = np.count_nonzero(~y)
     n2 = np.count_nonzero(~sub_y)
 
-    return 1 - n2/n1
+    return 1 - n2 / n1
 
 
 def sensitivity(X, y, subgroup):
@@ -27,7 +39,7 @@ def sensitivity(X, y, subgroup):
     p1 = np.count_nonzero(y)
     p2 = np.count_nonzero(sub_y)
 
-    return p2/p1
+    return p2 / p1
 
 
 def correlation(x, y, subgroup):
