@@ -22,6 +22,6 @@ def load_tsv(path):
         while line != '':
             lines.append(line.split('\t'))
             line = file.readline()
-    print(len(lines))
-    print(len(lines[1]))
-    return np.array(lines, dtype=str)
+    print('rows: ' + str(len(lines)))
+    print('columns: ' + str(len(lines[1])))
+    return np.array(lines, dtype=object)
