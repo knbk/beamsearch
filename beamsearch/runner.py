@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from beamsearch.beam_search import BeamSearch
-from beamsearch.load_arff import get_data
+from loaders.load_arff import get_data
 
 
 class SearchRunner(object):

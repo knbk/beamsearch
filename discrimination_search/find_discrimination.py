@@ -1,4 +1,4 @@
-from beamsearch import DataModel
+from loaders import DataModel
 import numpy as np
 
 
