@@ -18,7 +18,7 @@ def load_meta_data():
 
 
 def create_datamodel(data):
-    attributes = data[1, :]
+    attributes = data[0, :]
     return DataModel(data[1:, :], np.array([]), attributes=attributes)
 
 
