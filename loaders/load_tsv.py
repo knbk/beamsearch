@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 
 
 def load_experiment_details():
@@ -17,11 +18,10 @@ def load_meta_data():
 
 def load_tsv(path):
     lines = []
-    with open(path, 'r') as file:
-        line = file.readline()
-        while line != '':
-            lines.append(line.split('\t'))
-            line = file.readline()
+    with open(path, 'r', encoding='latin1') as file:
+        reader = csv.reader(file, delimiter='\t')
+        for row in reader:
+            lines.append(row)
     print('rows: ' + str(len(lines)))
     print('columns: ' + str(len(lines[1])))
     return np.array(lines, dtype=object)
