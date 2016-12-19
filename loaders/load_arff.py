@@ -1,5 +1,6 @@
 import arff
 import numpy as np
+from .datamodel import DataModel
 from sklearn import preprocessing
 
 data_path = './dataset.arff'
@@ -15,27 +16,6 @@ keep = np.array([
     False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
     False, True, False, True, True, True, False, False, False, True, True, False, False, True
 ])
-
-
-class DataModel:
-    def __init__(self, x, y, categorical=None, attributes=None):
-        self.x = x
-        self.y = y
-        self.categorical = categorical
-        self.attributes = attributes
-
-    def transform(self):
-        self.x = self.x[:, keep]
-        self.categorical = np.array(self.categorical)
-        self.categorical = self.categorical[keep]
-        numerical = ~self.categorical
-        Xnum = self.x[:, numerical]
-        Xnum = preprocessing.Imputer(strategy='median').fit_transform(Xnum, self.y)
-        Xcat = self.x[:, self.categorical]
-        Xcat = preprocessing.Imputer(strategy='most_frequent').fit_transform(Xcat, self.y)
-        self.x[:, numerical] = Xnum
-        self.x[:, self.categorical] = Xcat
-        self.attributes = [x for i, x in enumerate(self.attributes) if keep[i]]
 
 
 def load_data(path, include_categorical=False, include_attributes=False):
@@ -60,7 +40,21 @@ def load_data(path, include_categorical=False, include_attributes=False):
     return ret_val
 
 
+def transform(data):
+    data.x = data.x[:, keep]
+    data.categorical = np.array(data.categorical)
+    data.categorical = data.categorical[keep]
+    numerical = ~data.categorical
+    Xnum = data.x[:, numerical]
+    Xnum = preprocessing.Imputer(strategy='median').fit_transform(Xnum, data.y)
+    Xcat = data.x[:, data.categorical]
+    Xcat = preprocessing.Imputer(strategy='most_frequent').fit_transform(Xcat, data.y)
+    data.x[:, numerical] = Xnum
+    data.x[:, data.categorical] = Xcat
+    data.attributes = [x for i, x in enumerate(data.attributes) if keep[i]]
+
+
 def get_data(path=None):
     data = load_data(path, True, True)
-    data.transform()
+    transform(data)
     return data
