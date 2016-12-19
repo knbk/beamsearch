@@ -1,3 +1,18 @@
+import numpy as np
+
+
+def load_experiment_details():
+    return load_tsv('dataset/experiment_details')
+
+
+def load_click_data():
+    return load_tsv('dataset/clicking_data')
+
+
+def load_meta_data():
+    part1 = load_tsv('dataset/meta_data_1')
+    part2 = load_tsv('dataset/meta_data_2')
+    return np.concatenate((part1, part2))
 
 
 def load_tsv(path):
@@ -7,4 +22,6 @@ def load_tsv(path):
         while line != '':
             lines.append(line.split('\t'))
             line = file.readline()
-    return lines
+    print(len(lines))
+    print(len(lines[1]))
+    return np.array(lines, dtype=str)

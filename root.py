@@ -1,6 +1,9 @@
 from beamsearch import *
 from discrimination_search import find_discrimination
-from loaders import load_tsv
+from loaders import *
 
-meta_data_1 = load_tsv('dataset/meta_data_1')
-for line in meta_data_1:
+meta_data = load_meta_data()
+clicking_data = load_click_data()
+experiment_details = load_experiment_details()
+
+print('x')
