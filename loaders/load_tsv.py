@@ -28,6 +28,4 @@ def load_tsv(path):
         reader = csv.reader(file, delimiter='\t')
         for row in reader:
             lines.append(row)
-    print('rows: ' + str(len(lines)))
-    print('columns: ' + str(len(lines[1])))
     return np.array(lines, dtype=object)
