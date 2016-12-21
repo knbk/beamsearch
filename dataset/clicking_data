@@ -1,4 +1,5 @@
 action	action_label	action_type	tstamp	user_session
+string	string	string	int	string
 clic	revenue	link	1472755490	379881d5-32d7-49f4-bf5b-81fefbc5fcce
 clic	revenue	link	1472839117	2a0f4218-4f62-479b-845c-109b2720e6e7
 clic	revenue	link	1472879219	a511b6dc-2dca-455b-b5e2-bf2d224a5505

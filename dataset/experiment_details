@@ -1,4 +1,5 @@
 user_id	experiment_id	condition	timestamp
+string	string	string	timeoffset
 7f693927-6835-415e-b817-794eabee96d2	86-v2-Butonny buttons	2-Buttony-Conversion-Buttons	16:59.2
 8c07c192-83ab-4646-8cb5-b3a692e6eedf	86-v2-Butonny buttons	2-Buttony-Conversion-Buttons	17:10.3
 6aab759e-5662-4578-9ad5-016895b3a52b	86-v2-Butonny buttons	2-Buttony-Conversion-Buttons	20:39.9

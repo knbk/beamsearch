@@ -18,8 +18,9 @@ def load_meta_data():
 
 
 def create_data_model(data):
-    attributes = data[1, :]
-    return DataModel(data[1:, :], np.array([]), attributes=attributes)
+    attributes = data[0, :]
+    attribute_types = data[1, :]
+    return DataModel(data[2:, :], np.array([]), attributes=attributes, attribute_types=attribute_types)
 
 
 def load_tsv(path):

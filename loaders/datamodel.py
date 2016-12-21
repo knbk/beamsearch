@@ -1,4 +1,7 @@
+import re
+
 import numpy as np
+import sys
 
 
 class DataModel:
@@ -10,11 +13,12 @@ class DataModel:
     :type target_index: int
     """
 
-    def __init__(self, x, y, categorical=None, attributes=None):
+    def __init__(self, x, y, categorical=None, attributes=None, attribute_types=None):
         self.x = x
         self.y = y
         self.categorical = categorical
         self.attributes = attributes
+        self.attribute_types = attribute_types
         self.target_index = None
         self.target_attribute = None
 
@@ -52,4 +56,33 @@ class DataModel:
             self.set_target_index(None)
         data = self.x
         for column in range(data.shape[1]):
-            values = []
+            if self.attribute_types[column] == 'string':
+                values = {}
+                for row in range(data.shape[0]):
+                    value = data[row][column]
+                    values.setdefault(value, len(values))
+                    data[row][column] = values[value]
+                self.attributes[column] = (self.attributes[column], values.keys())
+            else:
+                if self.attribute_types[column] == 'timeoffset':
+                    self.attribute_types[column] = (self.attribute_types[column], 'integer')
+                    for row in range(data.shape[0]):
+                        value = data[row][column]
+                        if re.search("\\d+:\\d+\\.\\d+", value):
+                            split1 = value.split(':')
+                            split2 = split1[1].split('.')
+                            data[row][column] = int(split1[0]) * 600 + int(split2[0]) * 10 + int(split2[1])
+                else:
+                    if self.attribute_types[column] == 'bool':
+                        self.attributes[column] = (self.attributes[column], 'integer')
+                        for row in range(data.shape[0]):
+                            value = data[row][column]
+                            if value == 'FALSE':
+                                data[row][column] = 0
+                            else:
+                                if value == 'TRUE':
+                                    data[row][column] = 1
+                                else:  # should never happen
+                                    data[row][column] = 2
+                    else:  # case integer
+                        self.attributes[column] = (self.attributes[column], 'integer')
