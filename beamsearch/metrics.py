@@ -2,6 +2,8 @@ import functools
 import math
 import numpy as np
 
+from scipy.stats import ttest_ind
+
 
 def weighted_relative_accuracy(x, y, p_subgroup, subgroup):
     p_y = y[p_subgroup]
@@ -67,6 +69,22 @@ def chi_square(x, y, p_subgroup, subgroup):
     n = np.count_nonzero(~p_y)
 
     return (p + n) * (correlation(x, y, p_subgroup, subgroup) ** 2)
+
+
+def ttest(x, y, p_subgroup, subgroup):
+    control = np.logical_and(subgroup, y[:, 0] == 0)
+    treatment = np.logical_and(subgroup, y[:, 0] == 1)
+
+    control_y = y[np.where(control)][:, 1]
+    treatment_y = y[np.where(treatment)][:, 1]
+    if np.count_nonzero(control_y) == 0 or np.count_nonzero(treatment_y) == 0:
+        return 0, 0
+
+    measure = ttest_ind(control_y, treatment_y, equal_var=False)
+    if measure[1] < 0.05:
+        return measure
+    else:
+        return 0, measure[1]
 
 
 def negate(f):

@@ -18,7 +18,7 @@ class SubGroup:
         self.attributes.append(attribute)
 
     def __str__(self):
-        return "measure: %.3f, count: %d, attributes: %s" % (self.measure, self.count, self.attributes)
+        return "measure: %.3f, p-value: %.3f, count: %d, attributes: %s" % (self.measure[0], self.measure[1], self.count, self.attributes)
 
 
 class BeamSearch(object):

@@ -10,7 +10,7 @@ class DataModel:
     :type y: np.ndarray
     :type attributes: list
     :type categorical: list
-    :type target_index: int
+    :type target_index: int | slice
     """
 
     def __init__(self, x, y, categorical=None, attributes=None, attribute_types=None):
@@ -20,30 +20,36 @@ class DataModel:
         self.attributes = attributes
         self.attribute_types = attribute_types
         self.target_index = None
-        self.target_attribute = None
+        self.target_attributes = []
 
     def set_target_index(self, index):
         """
-        :type index: int | None
+        :type index: int | slice | None
         :param index: The index to get y from.
         :return: None
         """
         if index != self.target_index:
+            if isinstance(index, slice):
+                if index.step is not None:
+                    raise ValueError("Cannot set target index to a slice with step parameter.")
+            elif index is not None:
+                index = slice(index, index + 1)
+
             if self.target_index is not None:
-                y = np.reshape(self.y, (self.y.shape[0], 1))
-                self.x = np.concatenate((self.x[:, :self.target_index], y, self.x[:, self.target_index:]),
-                                        axis=1)
-                self.attributes = (self.attributes[:self.target_index] + [self.target_attribute]
-                                   + self.attributes[self.target_index:])
+                self.x = np.concatenate((self.x[:, :self.target_index.start], self.y,
+                                         self.x[:, self.target_index.start:]), axis=1)
+                self.attributes = (self.attributes[:self.target_index.start] + self.target_attributes
+                                   + self.attributes[self.target_index.start:])
                 self.y = None
-                self.target_attribute = None
+                self.target_attributes = None
+                self.target_index = None
 
             if index is not None:
                 self.target_index = index
                 self.y = self.x[:, index]
-                self.target_attribute = self.attributes[index]
-                self.x = np.concatenate((self.x[:, :index], self.x[:, index + 1:]), axis=1)
-                self.attributes = self.attributes[:index] + self.attributes[index + 1:]
+                self.target_attributes = self.attributes[index]
+                self.x = np.concatenate((self.x[:, :index.start], self.x[:, index.stop:]), axis=1)
+                self.attributes = self.attributes[:index.start] + self.attributes[index.stop:]
 
     def encode_values(self):
         """
@@ -52,7 +58,7 @@ class DataModel:
 
         :return: None
         """
-        if self.target_attribute is not None:
+        if self.target_attributes is not None:
             self.set_target_index(None)
         data = self.x
         for column in range(data.shape[1]):

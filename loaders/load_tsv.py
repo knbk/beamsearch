@@ -108,7 +108,7 @@ def load_processed_data():
         ]
         data[user_id] = np.asarray(line, dtype=object)
 
-    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), attributes=[
+    model = DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), attributes=[
         'most_common_country', 'most_common_language', 'total_duration', 'num_visits', 'avg_duration_all', 'num_long_visits',
         'avg_duration_long', 'referrer_name', 'most_common_device', 'group', 'num_clicks', 'num_views',
     ], attribute_types=[
@@ -116,6 +116,9 @@ def load_processed_data():
     ], categorical=[
         True, True, False, False, False, False, False, True, True, True, False, False,
     ])
+    model.encode_values()
+    model.set_target_index(slice(9, 12))
+    return model
 
 
 def create_data_model(data):
