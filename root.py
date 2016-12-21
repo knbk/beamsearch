@@ -8,4 +8,6 @@ experiment_details = load_experiment_details()
 
 meta_data.set_target_index(3)
 meta_data.set_target_index(4)
-print('x')
+
+for i in range(meta_data.x.shape[1]):
+    print(meta_data.attributes[i] + ": " + str(meta_data.x[:10, i]))

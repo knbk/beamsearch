@@ -4,20 +4,20 @@ import csv
 
 
 def load_experiment_details():
-    return create_datamodel(load_tsv('dataset/experiment_details'))
+    return create_data_model(load_tsv('dataset/experiment_details'))
 
 
 def load_click_data():
-    return create_datamodel(load_tsv('dataset/clicking_data'))
+    return create_data_model(load_tsv('dataset/clicking_data'))
 
 
 def load_meta_data():
     part1 = load_tsv('dataset/meta_data_1')
     part2 = load_tsv('dataset/meta_data_2')
-    return create_datamodel(np.concatenate((part1, part2)))
+    return create_data_model(np.concatenate((part1, part2)))
 
 
-def create_datamodel(data):
+def create_data_model(data):
     attributes = data[1, :]
     return DataModel(data[1:, :], np.array([]), attributes=attributes)
 
