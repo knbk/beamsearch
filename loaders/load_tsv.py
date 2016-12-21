@@ -27,9 +27,9 @@ def to_timestamp(val):
 def load_processed_data():
     metadata = load_meta_data()
     experiment_data = load_experiment_details()
-    experiments = defaultdict(list)
+    experiments = defaultdict(set)
     for row in experiment_data.x:
-        experiments[row[0]].append((row[2], to_timestamp(row[3])))
+        experiments[row[0]].add(row[2])
     # Cut off anchor from url, so ping url matches view url
     metadata.x[:, 13] = [x.split('#')[0] for x in metadata.x[:, 13]]
     # Convert string timestamps to seconds (in float)
@@ -66,13 +66,10 @@ def load_processed_data():
         view_data[key][index] = np.zeros((len(view) + 2), dtype=object)
         view_data[key][index][:-2] = view
         view_data[key][index][-2] = v
-        max_dist = 999
         group = None
-        for row in experiments[key[0]]:
-            dist = abs(view_dict[k][3] - row[1])
-            if dist < max_dist:
-                max_dist = dist
-                group = row[0]
+        if len(experiments[key[0]]) == 1:
+            for val in experiments[key[0]]:
+                group = val
         view_data[key][index][-1] = group
 
     metadata.x = np.array([x for v in view_data.values() for x in v])
