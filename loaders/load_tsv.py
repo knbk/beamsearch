@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import numpy as np
 from .datamodel import DataModel
@@ -24,7 +24,7 @@ def to_timestamp(val):
     return 60 * float(min) + float(sec)
 
 
-def load_processed_data():
+def load_processed_metadata():
     metadata = load_meta_data()
     experiment_data = load_experiment_details()
     experiments = defaultdict(set)
@@ -75,6 +75,43 @@ def load_processed_data():
     metadata.x = np.array([x for v in view_data.values() for x in v])
     metadata.attributes = np.concatenate((metadata.attributes, ['visit_duration', 'experiment_group']))
     return metadata
+
+
+def load_processed_data():
+    metadata = load_processed_metadata()
+    clicking_data = load_click_data()
+    clicks = Counter([x[-1] for x in clicking_data.x if x[0] == 'clic'])
+    views = Counter([x[-1] for x in clicking_data.x if x[0] == 'view'])
+    datadict = defaultdict(list)
+    for row in metadata.x:
+        if row[-1] is not None:
+            datadict[row[7]].append(row)
+
+    data = {}
+    for user_id, rows in datadict.items():
+        mc_country = Counter([x[8].strip() for x in rows]).most_common(1)[0][0]
+        mc_language = Counter([x[22].strip() for x in rows]).most_common(1)[0][0]
+        num_visits = len(rows)
+        avg_duration_all = sum([x[-2] for x in rows]) / len(rows)
+        long_visits = [x for x in rows if x[-2] > 0]
+        num_long_visits = len(long_visits)
+        avg_duration = (sum([x[-2] for x in long_visits]) / len(long_visits)) if long_visits else 0
+        group = rows[0][-1]
+        mc_device = Counter([x[29] for x in rows]).most_common(1)[0][0]
+        referrer_name = Counter([x[16] for x in rows]).most_common(1)[0][0]
+        num_clicks = clicks.get(user_id, 0)
+        num_views = views.get(user_id, 0)
+        line = [
+            mc_country, mc_language, num_visits, avg_duration_all, num_long_visits, avg_duration,
+            referrer_name, mc_device, group, num_clicks, num_views,
+        ]
+        data[user_id] = np.asarray(line, dtype=object)
+    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), attributes=[
+        'most_common_country', 'most_common_language', 'num_visits', 'avg_duration_all', 'num_long_visits',
+        'avg_duration_long', 'referrer_name', 'most_common_device', 'group', 'num_clicks', 'num_views',
+    ], attribute_types=[
+        'string', 'string', 'int', 'float', 'int', 'float', 'string', 'string', 'string', 'int', 'int',
+    ])
 
 
 def create_data_model(data):

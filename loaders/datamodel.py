@@ -33,8 +33,8 @@ class DataModel:
                 y = np.reshape(self.y, (self.y.shape[0], 1))
                 self.x = np.concatenate((self.x[:, :self.target_index], y, self.x[:, self.target_index:]),
                                         axis=1)
-                self.attributes = np.concatenate(
-                    (self.attributes[:self.target_index], [self.target_attribute], self.attributes[self.target_index:]))
+                self.attributes = (self.attributes[:self.target_index] + [self.target_attribute]
+                                   + self.attributes[self.target_index:])
                 self.y = None
                 self.target_attribute = None
 
@@ -43,7 +43,7 @@ class DataModel:
                 self.y = self.x[:, index]
                 self.target_attribute = self.attributes[index]
                 self.x = np.concatenate((self.x[:, :index], self.x[:, index + 1:]), axis=1)
-                self.attributes = np.concatenate((self.attributes[:index], self.attributes[index + 1:]))
+                self.attributes = self.attributes[:index] + self.attributes[index + 1:]
 
     def encode_values(self):
         """
@@ -62,27 +62,27 @@ class DataModel:
                     value = data[row][column]
                     values.setdefault(value, len(values))
                     data[row][column] = values[value]
-                self.attributes[column] = (self.attributes[column], values.keys())
-            else:
-                if self.attribute_types[column] == 'timeoffset':
-                    self.attribute_types[column] = (self.attribute_types[column], 'integer')
-                    for row in range(data.shape[0]):
-                        value = data[row][column]
-                        if re.search("\\d+:\\d+\\.\\d+", value):
-                            split1 = value.split(':')
-                            split2 = split1[1].split('.')
-                            data[row][column] = int(split1[0]) * 600 + int(split2[0]) * 10 + int(split2[1])
-                else:
-                    if self.attribute_types[column] == 'bool':
-                        self.attributes[column] = (self.attributes[column], 'integer')
-                        for row in range(data.shape[0]):
-                            value = data[row][column]
-                            if value == 'FALSE':
-                                data[row][column] = 0
-                            else:
-                                if value == 'TRUE':
-                                    data[row][column] = 1
-                                else:  # should never happen
-                                    data[row][column] = 2
-                    else:  # case integer
-                        self.attributes[column] = (self.attributes[column], 'integer')
+                self.attributes[column] = (self.attributes[column], list(values.keys()))
+            elif self.attribute_types[column] == 'timeoffset':
+                self.attributes[column] = (self.attribute_types[column], 'integer')
+                for row in range(data.shape[0]):
+                    value = data[row][column]
+                    if re.search("\\d+:\\d+\\.\\d+", value):
+                        split1 = value.split(':')
+                        split2 = split1[1].split('.')
+                        data[row][column] = int(split1[0]) * 600 + int(split2[0]) * 10 + int(split2[1])
+            elif self.attribute_types[column] == 'bool':
+                self.attributes[column] = (self.attributes[column], 'integer')
+                for row in range(data.shape[0]):
+                    value = data[row][column]
+                    if value == 'FALSE':
+                        data[row][column] = 0
+                    else:
+                        if value == 'TRUE':
+                            data[row][column] = 1
+                        else:  # should never happen
+                            data[row][column] = 2
+            elif self.attribute_types[column] == 'float':
+                self.attributes[column] = (self.attributes[column], 'float')
+            else:  # case integer
+                self.attributes[column] = (self.attributes[column], 'integer')
