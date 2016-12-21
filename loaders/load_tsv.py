@@ -96,21 +96,25 @@ def load_processed_data():
         long_visits = [x for x in rows if x[-2] > 0]
         num_long_visits = len(long_visits)
         avg_duration = (sum([x[-2] for x in long_visits]) / len(long_visits)) if long_visits else 0
+        total_duration = sum([x[-2] for x in rows])
         group = rows[0][-1]
         mc_device = Counter([x[29] for x in rows]).most_common(1)[0][0]
         referrer_name = Counter([x[16] for x in rows]).most_common(1)[0][0]
         num_clicks = clicks.get(user_id, 0)
         num_views = views.get(user_id, 0)
         line = [
-            mc_country, mc_language, num_visits, avg_duration_all, num_long_visits, avg_duration,
+            mc_country, mc_language, total_duration, num_visits, avg_duration_all, num_long_visits, avg_duration,
             referrer_name, mc_device, group, num_clicks, num_views,
         ]
         data[user_id] = np.asarray(line, dtype=object)
-    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), np.array(attributes=[
-        'most_common_country', 'most_common_language', 'num_visits', 'avg_duration_all', 'num_long_visits',
+
+    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), attributes=[
+        'most_common_country', 'most_common_language', 'total_duration', 'num_visits', 'avg_duration_all', 'num_long_visits',
         'avg_duration_long', 'referrer_name', 'most_common_device', 'group', 'num_clicks', 'num_views',
-    ]), attribute_types=[
-        'string', 'string', 'int', 'float', 'int', 'float', 'string', 'string', 'string', 'int', 'int',
+    ], attribute_types=[
+        'string', 'string', 'float', 'int', 'float', 'int', 'float', 'string', 'string', 'string', 'int', 'int',
+    ], categorical=[
+        True, True, False, False, False, False, False, True, True, True, False, False,
     ])
 
 

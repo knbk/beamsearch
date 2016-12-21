@@ -8,8 +8,8 @@ class DataModel:
     """
     :type x: np.ndarray
     :type y: np.ndarray
-    :type attributes: np.ndarray
-    :type categorical: np.ndarray
+    :type attributes: list
+    :type categorical: list
     :type target_index: int
     """
 
