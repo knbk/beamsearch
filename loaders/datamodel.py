@@ -1,7 +1,6 @@
 import re
 
 import numpy as np
-import sys
 
 
 class DataModel:
