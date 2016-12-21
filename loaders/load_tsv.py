@@ -106,10 +106,10 @@ def load_processed_data():
             referrer_name, mc_device, group, num_clicks, num_views,
         ]
         data[user_id] = np.asarray(line, dtype=object)
-    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), attributes=[
+    return DataModel(np.asarray(list(data.values()), dtype=object), np.array([]), np.array(attributes=[
         'most_common_country', 'most_common_language', 'num_visits', 'avg_duration_all', 'num_long_visits',
         'avg_duration_long', 'referrer_name', 'most_common_device', 'group', 'num_clicks', 'num_views',
-    ], attribute_types=[
+    ]), attribute_types=[
         'string', 'string', 'int', 'float', 'int', 'float', 'string', 'string', 'string', 'int', 'int',
     ])
 
