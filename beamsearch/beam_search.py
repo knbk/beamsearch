@@ -18,7 +18,7 @@ class SubGroup:
         self.attributes.append(attribute)
 
     def __str__(self):
-        return "measure: %.3f, count: %d, attributes: %s" % (self.measure, self.count, self.attributes)
+        return "measure: %.3f, p-value: %.3f, count: %d, attributes: %s" % (self.measure[0], self.measure[1], self.count, self.attributes)
 
 
 class BeamSearch(object):
@@ -28,7 +28,7 @@ class BeamSearch(object):
         'match': 2,
     }
 
-    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, target='match', minimize=False, min_size=0.1):
+    def __init__(self, metric=None, width=5, depth=2, q=10, bins=8, verbose=0, minimize=False, min_size=0.1):
         if metric and not callable(metric):
             metric = getattr(metrics, metric)
         metric = metric or metrics.weighted_relative_accuracy
@@ -41,7 +41,6 @@ class BeamSearch(object):
         self.bins = bins
         self.random = random.Random(1)
         self.verbosity = verbose
-        self.target = self.targets[target]
         self.min_size = min_size
 
     # def run_classifier(self, X, y):
@@ -172,7 +171,7 @@ class BeamSearch(object):
         return '%s %s %s' % (attr[0], splitter.comparison, val)
 
     def search(self, data):
-        results = self.depth_search(data.x, data.y[:,self.target], data.categorical)
+        results = self.depth_search(data.x, data.y, data.categorical)
         new_res = []
         for measure, candidates in results:
             result = SubGroup(measure, np.count_nonzero(self.get_subgroup(data.x, candidates)))
