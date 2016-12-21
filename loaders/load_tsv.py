@@ -26,6 +26,10 @@ def to_timestamp(val):
 
 def load_processed_data():
     metadata = load_meta_data()
+    experiment_data = load_experiment_details()
+    experiments = defaultdict(list)
+    for row in experiment_data.x:
+        experiments[row[0]].append((row[2], to_timestamp(row[3])))
     # Cut off anchor from url, so ping url matches view url
     metadata.x[:, 13] = [x.split('#')[0] for x in metadata.x[:, 13]]
     # Convert string timestamps to seconds (in float)
@@ -43,8 +47,10 @@ def load_processed_data():
     for v in view_data.values():
         v.sort(key=lambda x: x[3])
     view_time = {}
+    view_dict = {}
     for k, v in view_data.items():
         for i, row in enumerate(v):
+            view_dict[k + (i,)] = row
             if i < len(v) - 1:
                 pings = [x for x in ping_data[(row[7], row[13])] if row[3] <= x[3] < v[i + 1][3]]
                 end_time = max([p[3] for p in pings]) if pings else row[3]
@@ -57,12 +63,20 @@ def load_processed_data():
     for k, v in view_time.items():
         key, index = k[:2], k[2]
         view = view_data[key][index]
-        view_data[key][index] = np.zeros((len(view) + 1), dtype=object)
-        view_data[key][index][:-1] = view
-        view_data[key][index][-1] = v
+        view_data[key][index] = np.zeros((len(view) + 2), dtype=object)
+        view_data[key][index][:-2] = view
+        view_data[key][index][-2] = v
+        max_dist = 999
+        group = None
+        for row in experiments[key[0]]:
+            dist = abs(view_dict[k][3] - row[1])
+            if dist < max_dist:
+                max_dist = dist
+                group = row[0]
+        view_data[key][index][-1] = group
 
     metadata.x = np.array([x for v in view_data.values() for x in v])
-    metadata.attributes = np.concatenate((metadata.attributes, ['visit_duration']))
+    metadata.attributes = np.concatenate((metadata.attributes, ['visit_duration', 'experiment_group']))
     return metadata
 
 
